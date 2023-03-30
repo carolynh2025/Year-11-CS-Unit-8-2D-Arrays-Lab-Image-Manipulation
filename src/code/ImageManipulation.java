@@ -1,6 +1,7 @@
 package code;
 
 import image.Pixel;
+import image.APImage;
 
 public class ImageManipulation {
 
@@ -8,7 +9,11 @@ public class ImageManipulation {
      *  Write a statement that will display the image in a window
      */
     public static void main(String[] args) {
-
+        APImage myImage = new APImage("cyberpunk2077.jpg");
+        myImage.draw();
+        grayScale("cyberpunk2077.jpg");
+        blackAndWhite("cyberpunk2077.jpg");
+        edgeDetection("cyberpunk2077.jpg", 10);
 
     }
 
@@ -21,6 +26,22 @@ public class ImageManipulation {
      * Calculate the average of the red, green, and blue components of the pixel.
      * Set the red, green, and blue components to this average value. */
     public static void grayScale(String pathOfFile) {
+        APImage image = new APImage(pathOfFile);
+        int width = image.getWidth();
+        int height = image.getHeight();
+        for(int i = 0; i < width; i++){
+            for(int j = 0; j < height; j++){
+                int red = image.getPixel(i, j).getRed();
+                int green = image.getPixel(i, j).getGreen();
+                int blue = image.getPixel(i, j).getBlue();
+                int average = (red + green + blue)/3;
+
+                Pixel pixel = new Pixel(average, average, average);
+                image.setPixel(i, j, pixel);
+
+            }
+        }
+        image.draw();
 
     }
 
@@ -30,7 +51,11 @@ public class ImageManipulation {
      * @return the average RGB value
      */
     private static int getAverageColour(Pixel pixel) {
-        return 0;
+        int red = pixel.getRed();
+        int green = pixel.getGreen();
+        int blue = pixel.getBlue();
+
+        return (red + green + blue) / 3;
     }
 
     /** CHALLENGE TWO: Black and White
@@ -43,6 +68,26 @@ public class ImageManipulation {
      * If the average is less than 128, set the pixel to black
      * If the average is equal to or greater than 128, set the pixel to white */
     public static void blackAndWhite(String pathOfFile) {
+        APImage image = new APImage(pathOfFile);
+        int width = image.getWidth();
+        int height = image.getHeight();
+        for(int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                int red = image.getPixel(i, j).getRed();
+                int green = image.getPixel(i, j).getGreen();
+                int blue = image.getPixel(i, j).getBlue();
+                int average = (red + green + blue) / 3;
+                if(average >= 128){
+                    red = green = blue = 255;
+                }
+                else{
+                    red = green = blue = 0;
+                }
+                Pixel pixel = new Pixel(red, blue, green);
+                image.setPixel(i, j, pixel);
+            }
+        }
+        image.draw();
 
     }
 
@@ -69,6 +114,30 @@ public class ImageManipulation {
      * edge detection to an image using a threshold of 35
      *  */
     public static void edgeDetection(String pathToFile, int threshold) {
+        APImage image = new APImage(pathToFile);
+        int height = image.getHeight();
+        int width = image.getWidth();
+        for (int x = width - 1; x > 0; x--){
+            for (int y = height - 1; y > 0; y--){
+                Pixel pix1 = image.getPixel(x, y);
+                int avg1 = getAverageColour(pix1);
+                Pixel pix2 = image.getPixel(x-1, y);
+                int avg2 = getAverageColour(pix2);
+                Pixel pix3 = image.getPixel(x, y-1);
+                int avg3 = getAverageColour(pix3);
+                int diff_12 = java.lang.Math.abs(avg1 - avg2);
+                int diff_13 = java.lang.Math.abs(avg1 - avg3);
+                Pixel p;
+                if(diff_12 >= threshold || diff_13 >= threshold) {
+                    p = new Pixel(0, 0, 0);
+                }
+                else{
+                    p = new Pixel(255, 255, 255);
+                }
+                image.setPixel(x, y, p);
+            }
+        }
+        image.draw();
 
     }
 
